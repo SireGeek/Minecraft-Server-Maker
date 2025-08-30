@@ -1,0 +1,13 @@
+{
+  "discordToken": "MTQwMTU1NjgzNzg4NjU5MDk4Ng.G48nop.JEZ7-yrADoYJZsbYziUiK4SzGywOILy3xNvTxU",
+  "tiktokUsername": "jadedrose69",
+  "discordGuildId": "1401422989093769299",
+  "discordChannels": [
+    "modlog",
+    "general"
+  ],
+  "bannedWords": [
+    "badword1",
+    "badword2"
+  ]
+}

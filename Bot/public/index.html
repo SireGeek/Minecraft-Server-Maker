@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TikTok Discord Bot Dashboard</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #121212;
+    color: #eee;
+    margin: 0; padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  header {
+    background: #222;
+    padding: 1rem;
+    text-align: center;
+    font-size: 1.6rem;
+    font-weight: bold;
+    letter-spacing: 1.5px;
+    border-bottom: 2px solid #e91e63;
+    user-select: none;
+  }
+  nav {
+    background: #1f1f1f;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #444;
+  }
+  nav button {
+    background: #333;
+    border: none;
+    padding: 0.5rem 1rem;
+    color: #eee;
+    cursor: pointer;
+    border-radius: 4px;
+    font-weight: 600;
+    transition: background 0.3s ease;
+  }
+  nav button.active, nav button:hover {
+    background: #e91e63;
+    color: white;
+  }
+  main {
+    flex-grow: 1;
+    padding: 1rem;
+    max-width: 900px;
+    margin: auto;
+  }
+  section {
+    display: none;
+    animation: fadeIn 0.5s ease forwards;
+  }
+  section.active {
+    display: block;
+  }
+  @keyframes fadeIn {
+    from {opacity: 0;}
+    to {opacity: 1;}
+  }
+  textarea {
+    width: 100%;
+    height: 300px;
+    background: #222;
+    border: 1px solid #555;
+    color: #eee;
+    font-family: monospace;
+    padding: 0.5rem;
+    border-radius: 6px;
+    resize: vertical;
+  }
+  button.control-btn {
+    background: #e91e63;
+    color: white;
+    border: none;
+    padding: 0.7rem 1.3rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-top: 0.8rem;
+    font-weight: 700;
+    transition: background 0.3s ease;
+  }
+  button.control-btn:hover {
+    background: #c2185b;
+  }
+  .status {
+    margin-top: 1rem;
+    font-weight: 700;
+  }
+  h2 {
+    margin-top: 0;
+    border-bottom: 2px solid #e91e63;
+    padding-bottom: 0.3rem;
+  }
+  .instructions {
+    background: #222;
+    padding: 1rem;
+    border-radius: 8px;
+    line-height: 1.5;
+    font-size: 1rem;
+  }
+  code {
+    background: #333;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+  }
+  footer {
+    background: #222;
+    padding: 0.8rem;
+    text-align: center;
+    font-size: 0.9rem;
+    color: #777;
+    border-top: 1px solid #444;
+    user-select: none;
+  }
+  .log-box {
+    background: #111;
+    border: 1px solid #555;
+    padding: 1rem;
+    border-radius: 6px;
+    height: 200px;
+    overflow-y: auto;
+    font-family: monospace;
+    white-space: pre-wrap;
+    color: #eee;
+    margin-top: 1rem;
+  }
+</style>
+</head>
+<body>
+<header>TikTok Discord Bot Dashboard</header>
+<nav>
+  <button id="tab-setup" class="active">Setup & Instructions</button>
+  <button id="tab-config">Settings (Config Editor)</button>
+  <button id="tab-control">Bot Control</button>
+  <button id="tab-status">Bot Status & Logs</button>
+</nav>
+<main>
+  <section id="setup" class="active">
+    <h2>Setup & Instructions</h2>
+    <div class="instructions">
+      <p>Welcome to the TikTok Discord Bot dashboard! This bot connects to a TikTok live stream chat and forwards messages into Discord channels by channel name.</p>
+      <p><strong>Steps to get started:</strong></p>
+      <ol>
+        <li>Fill in your <code>discordToken</code>, <code>tiktokUsername</code>, <code>discordGuildId</code>, and <code>discordChannels</code> in the <strong>Settings</strong> tab.</li>
+        <li>Make sure the Discord bot is invited to your server with proper permissions (reading messages, sending messages, managing messages).</li>
+        <li>Click <strong>Start Bot</strong> in the <strong>Bot Control</strong> tab to connect.</li>
+        <li>View the bot status and logs in the <strong>Bot Status & Logs</strong> tab.</li>
+      </ol>
+      <p><strong>Moderation:</strong> The bot automatically deletes messages containing banned words (set in the <code>bannedWords</code> array in Settings).</p>
+      <p><strong>Channel selection:</strong> Use the exact channel names in <code>discordChannels</code>. The bot finds channels by name automatically.</p>
+      <p>If you have any questions, check your console or the logs here!</p>
+    </div>
+  </section>
+
+  <section id="config">
+    <h2>Settings (Config Editor)</h2>
+    <textarea id="configText" spellcheck="false"></textarea>
+    <br />
+    <button id="saveConfigBtn" class="control-btn">Save Config</button>
+    <p id="configMessage" class="status"></p>
+  </section>
+
+  <section id="control">
+    <h2>Bot Control</h2>
+    <button id="startBotBtn" class="control-btn">Start Bot</button>
+    <button id="stopBotBtn" class="control-btn" style="margin-left: 1rem;">Stop Bot</button>
+    <p id="controlMessage" class="status"></p>
+  </section>
+
+  <section id="status">
+    <h2>Bot Status & Logs</h2>
+    <p>Status: <span id="botStatus">Unknown</span></p>
+    <div class="log-box" id="logBox"></div>
+  </section>
+</main>
+<footer>
+  Made with ❤️ by AI-powered Discord Bot Service
+</footer>
+
+<script>
+  const tabs = ["setup", "config", "control", "status"];
+  tabs.forEach(tab => {
+    document.getElementById("tab-" + tab).addEventListener("click", () => {
+      tabs.forEach(t => {
+        document.getElementById(t).classList.remove("active");
+        document.getElementById("tab-" + t).classList.remove("active");
+      });
+      document.getElementById(tab).classList.add("active");
+      document.getElementById("tab-" + tab).classList.add("active");
+    });
+  });
+
+  const configText = document.getElementById("configText");
+  const saveConfigBtn = document.getElementById("saveConfigBtn");
+  const configMessage = document.getElementById("configMessage");
+  const startBotBtn = document.getElementById("startBotBtn");
+  const stopBotBtn = document.getElementById("stopBotBtn");
+  const controlMessage = document.getElementById("controlMessage");
+  const botStatusSpan = document.getElementById("botStatus");
+  const logBox = document.getElementById("logBox");
+
+  function appendLog(text) {
+    const time = new Date().toLocaleTimeString();
+    logBox.textContent += `[${time}] ${text}\n`;
+    logBox.scrollTop = logBox.scrollHeight;
+  }
+
+  async function loadConfig() {
+    try {
+      const res = await fetch("/api/config");
+      if (!res.ok) throw new Error("Failed to load config");
+      const data = await res.json();
+      configText.value = JSON.stringify(data, null, 2);
+      configMessage.textContent = "";
+    } catch (e) {
+      configMessage.textContent = "Error loading config: " + e.message;
+      appendLog("Error loading config: " + e.message);
+    }
+  }
+
+  async function saveConfig() {
+    let json;
+    try {
+      json = JSON.parse(configText.value);
+    } catch (e) {
+      configMessage.textContent = "Invalid JSON: " + e.message;
+      return;
+    }
+    try {
+      const res = await fetch("/api/config", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(json),
+      });
+      if (!res.ok) throw new Error("Failed to save config");
+      configMessage.textContent = "Config saved successfully!";
+      appendLog("Config saved");
+    } catch (e) {
+      configMessage.textContent = "Error saving config: " + e.message;
+      appendLog("Error saving config: " + e.message);
+    }
+  }
+
+  async function fetchBotStatus() {
+    try {
+      const res = await fetch("/api/status");
+      if (!res.ok) throw new Error("Failed to get status");
+      const data = await res.json();
+      botStatusSpan.textContent = data.running ? "Running 🟢" : "Stopped 🔴";
+    } catch (e) {
+      botStatusSpan.textContent = "Error";
+      appendLog("Error fetching status: " + e.message);
+    }
+  }
+
+  async function startBot() {
+    controlMessage.textContent = "Starting bot...";
+    try {
+      const res = await fetch("/api/start", { method: "POST" });
+      const data = await res.json();
+      if (res.ok) {
+        controlMessage.textContent = "Bot started successfully!";
+        appendLog("Bot started");
+        fetchBotStatus();
+      } else {
+        controlMessage.textContent = `Error: ${data.error || "Unknown error"}`;
+        appendLog(`Start error: ${data.error}`);
+      }
+    } catch (e) {
+      controlMessage.textContent = "Start failed: " + e.message;
+      appendLog("Start failed: " + e.message);
+    }
+  }
+
+  async function stopBot() {
+    controlMessage.textContent = "Stopping bot...";
+    try {
+      const res = await fetch("/api/stop", { method: "POST" });
+      const data = await res.json();
+      if (res.ok) {
+        controlMessage.textContent = "Bot stopped successfully!";
+        appendLog("Bot stopped");
+        fetchBotStatus();
+      } else {
+        controlMessage.textContent = `Error: ${data.error || "Unknown error"}`;
+        appendLog(`Stop error: ${data.error}`);
+      }
+    } catch (e) {
+      controlMessage.textContent = "Stop failed: " + e.message;
+      appendLog("Stop failed: " + e.message);
+    }
+  }
+
+  saveConfigBtn.addEventListener("click", saveConfig);
+  startBotBtn.addEventListener("click", startBot);
+  stopBotBtn.addEventListener("click", stopBot);
+
+  window.addEventListener("load", () => {
+    loadConfig();
+    fetchBotStatus();
+  });
+</script>
+</body>
+</html>

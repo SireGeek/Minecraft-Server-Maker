@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Minecraft Server Manager</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="grid">
+    <aside class="sidebar glass">
+      <h1 class="logo">⛏️ MC Manager</h1>
+      <button id="refresh" class="btn primary">Refresh</button>
+      <section class="block">
+        <h2>Upload JAR</h2>
+        <input type="file" id="jarFile" accept=".jar" />
+        <button id="uploadJarBtn" class="btn">Upload</button>
+        <div id="jarsList" class="chips"></div>
+      </section>
+      <section class="block">
+        <h2>Create Server</h2>
+        <label>Name <input id="name" placeholder="My Server" /></label>
+        <label>Port <input id="port" type="number" placeholder="25565" /></label>
+        <label>Max Memory (MB) <input id="maxMemoryMB" type="number" placeholder="2048" /></label>
+        <label>JAR <select id="jarSelect"></select></label>
+        <button id="createBtn" class="btn accent">Create</button>
+      </section>
+    </aside>
+
+    <main class="content">
+      <div class="servers-header">
+        <h2>Servers</h2>
+        <div class="searchbar">
+          <input id="search" placeholder="Search servers..." />
+        </div>
+      </div>
+
+      <div id="servers" class="card-grid"></div>
+
+      <div id="logsPanel" class="logs glass hidden">
+        <div class="logs-head">
+          <div id="logsTitle">Logs</div>
+          <button id="closeLogs" class="btn small">Close</button>
+        </div>
+        <pre id="logsText"></pre>
+      </div>
+    </main>
+  </div>
+
+  <template id="serverCard">
+    <div class="card glass">
+      <div class="card-head">
+        <h3 class="name"></h3>
+        <span class="badge"></span>
+      </div>
+      <div class="meta"></div>
+      <div class="actions">
+        <button class="btn start">Start</button>
+        <button class="btn stop">Stop</button>
+        <button class="btn outline logs">Logs</button>
+        <button class="btn danger delete">Delete</button>
+      </div>
+      <div class="console">
+        <input class="cmd" placeholder="Type console command...">
+        <button class="btn small send">Send</button>
+      </div>
+    </div>
+  </template>
+
+  <script src="app.js"></script>
+</body>
+</html>
